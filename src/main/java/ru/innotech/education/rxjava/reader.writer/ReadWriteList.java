@@ -1,16 +1,46 @@
 package ru.innotech.education.rxjava.reader.writer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.FixedValue;
+import net.sf.cglib.proxy.InvocationHandler;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.*;
 
 public class ReadWriteList<T>
-        implements Collection<T> {
+        implements Collection<T>, IList {
     private final List<T> list = new ArrayList<>();
 
     public static <T> ReadWriteList<T> create() {
-        return null;
+        /*IList rwl = (IList) Proxy.newProxyInstance(
+                ReadWriteList.class.getClassLoader(),
+                ReadWriteList.class.getInterfaces(),
+                new AnnotationHandler(ReadWriteList.class));
+        return (ReadWriteList<T>) rwl;*/
+        ReadWriteList<T> list = new ReadWriteList<>();
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(list.getClass());
+        enhancer.setCallback(new InvocationHandler() {
+            @Override
+            public synchronized Object invoke(Object proxy, Method method, Object[] args)
+                    throws Throwable {
+                Method[] methods = ReadWriteList.class.getClass().getDeclaredMethods();
+                Method method1 = Arrays.stream(methods).filter(t -> t.getName().equals(method.getName())).findFirst().orElse(method);
+                //System.out.println("method 1: " + method1);
+                //if(Arrays.stream(methods).findFirst().filter(t -> t.getName().equals(method.getName())).isPresent()) {
+                //System.out.println("method in invoke: " + method.getName());
+//      if (!method1.getName().equals(method.getName())) break;
+                if (method1.getDeclaredAnnotation(ReadOperation.class) != null) { // TODO READ OPERATION LOGIC
+                    System.out.println("ReadOperataion - " + method.getName());
+                }
+                if (method1.getDeclaredAnnotation(WriteOperation.class) != null) { // TODO WRITE OPERATION LOGIC
+                    System.out.println("WriteOperataion - " + method.getName());
+                }
+                return method.invoke(list, args);
+            }
+        });
+        return (ReadWriteList<T>) enhancer.create();
     }
 
     ReadWriteList() {
