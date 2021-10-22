@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.Semaphore;
 
 public class ReadWriteList<T>
-        implements Collection<T>, IList {
+        implements Collection<T> {
     private final List<T> list = new ArrayList<>();
 
     public static <T> ReadWriteList<T> create() {
@@ -46,7 +46,7 @@ public class ReadWriteList<T>
                     semaphore.release();
                 }
 
-                return invoke==null?method.invoke(list, args):invoke;
+                return invoke == null ? method.invoke(list, args) : invoke;
             }
         });
         return (ReadWriteList<T>) enhancer.create();
