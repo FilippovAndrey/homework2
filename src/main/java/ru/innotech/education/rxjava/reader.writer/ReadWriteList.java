@@ -29,7 +29,17 @@ public class ReadWriteList<T>
                     .orElse(method);
 
             if (originMethod.getDeclaredAnnotation(ReadOperation.class) != null) { // – несколько потоков могут выполнять этот метод параллельно.
-                System.out.println("ReadOperataion - " + method.getName());
+                countReader.incrementAndGet();
+                if(countReader.get() == 1) {
+                    semaphore.acquire();
+                }
+
+                invoke = method.invoke(list, args);
+
+                countReader.decrementAndGet();
+                if(countReader.get() == 0) {
+                    semaphore.release();
+                }
             }
             if (originMethod.getDeclaredAnnotation(WriteOperation.class) != null) { // – только один поток в один момент времени может выполнять этот метод.
                 semaphore.acquire();
