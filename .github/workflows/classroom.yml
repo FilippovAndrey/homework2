@@ -1,11 +1,11 @@
-name: Build project
+name: GitHub Classroom Workflow
 on:
   push:
     branches:
       - master
 jobs:
   build:
-    name: Build
+    name: Autograding
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,3 +19,12 @@ jobs:
         with:
           dependencies-cache-enabled: true
           arguments: clean build
+
+      - name: Test Report
+        uses: mikepenz/action-junit-report@v2
+        if: always()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+
+      - name: Run autograding
+        uses: education/autograding@v1

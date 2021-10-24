@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Run tests",
+      "setup": "",
+      "run": "gradle clean test",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    }
+  ]
+}
